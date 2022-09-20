@@ -1,0 +1,32 @@
+{
+  "name": "evm-send",
+  "version": "0.1.0",
+  "description": "A tool for deploying EVM bytecode",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "evm-send": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/altugbakan/evm-send.git"
+  },
+  "keywords": [
+    "ethereum",
+    "evm",
+    "bytecode"
+  ],
+  "author": "altugbakan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/altugbakan/evm-send/issues"
+  },
+  "homepage": "https://github.com/altugbakan/evm-send#readme",
+  "dependencies": {
+    "commander": "^9.4.0",
+    "ethers": "^5.7.1"
+  }
+}
