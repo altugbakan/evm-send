@@ -2,7 +2,7 @@
 import { program } from "commander";
 import { ContractFactory, Wallet, providers } from "ethers";
 import { promises as fs } from "fs";
-import { getDeploymentBytecode, simulateDeployment } from "./utils.js";
+import { getDeploymentBytecode, simulateDeployment } from "./src/utils.js";
 
 program
   .name("evm-send")
@@ -11,7 +11,6 @@ program
   .argument("[bytecode]", "bytecode to publish");
 
 program
-  .option("-a --args", "Constructor arguments")
   .option("-d --deployment", "Add the deployment bytecode")
   .option("-f --force", "Do not prompt about the deployment bytecode")
   .option("-l --local <path>", "Read bytecode from a local path")

@@ -1,3 +1,5 @@
+import { EVM } from "./evm.js";
+
 export const toHexString = (num, len) => {
   const str = num.toString(16);
   return "0".repeat(len - str.length) + str;
@@ -20,6 +22,8 @@ export const getDeploymentBytecode = (bytecode) => {
 };
 
 export const simulateDeployment = (bytecode) => {
+  const evm = new EVM();
+  evm.run(bytecode);
   // TODO: implement deployment checking
   return true;
 };
