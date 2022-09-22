@@ -23,7 +23,6 @@ export const getDeploymentBytecode = (bytecode) => {
 
 export const simulateDeployment = (bytecode) => {
   const evm = new EVM();
-  evm.run(bytecode);
-  // TODO: implement deployment checking
-  return true;
+  const returnData = evm.run(bytecode);
+  return { reverted: evm.reverted, returnData: returnData };
 };

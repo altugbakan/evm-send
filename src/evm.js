@@ -9,6 +9,7 @@ export class EVM {
     this.memory = "";
     this.return = "";
 
+    // regex to split the bytecode into 2 character opcodes
     const opcodes = bytecode.match(/.{2}/g);
     for (let pc = 0; pc < opcodes.length; ++pc) {
       if (this.reverted) {
@@ -568,7 +569,133 @@ export class EVM {
           pc += 32;
           break;
 
-        // TODO: DUPS and SWAPS
+        case "80": // DUP1
+          this.stack.push(stack[0]);
+          break;
+
+        case "81": // DUP2
+          this.stack.push(stack[1]);
+          break;
+
+        case "82": // DUP3
+          this.stack.push(stack[2]);
+          break;
+
+        case "83": // DUP4
+          this.stack.push(stack[3]);
+          break;
+
+        case "84": // DUP5
+          this.stack.push(stack[4]);
+          break;
+
+        case "85": // DUP6
+          this.stack.push(stack[5]);
+          break;
+
+        case "86": // DUP7
+          this.stack.push(stack[6]);
+          break;
+
+        case "87": // DUP8
+          this.stack.push(stack[7]);
+          break;
+
+        case "88": // DUP9
+          this.stack.push(stack[8]);
+          break;
+
+        case "89": // DUP10
+          this.stack.push(stack[9]);
+          break;
+
+        case "8A": // DUP11
+          this.stack.push(stack[10]);
+          break;
+
+        case "8B": // DUP12
+          this.stack.push(stack[11]);
+          break;
+
+        case "8C": // DUP13
+          this.stack.push(stack[12]);
+          break;
+
+        case "8D": // DUP14
+          this.stack.push(stack[13]);
+          break;
+
+        case "8E": // DUP15
+          this.stack.push(stack[14]);
+          break;
+
+        case "8F": // DUP16
+          this.stack.push(stack[15]);
+          break;
+
+        case "90": // SWAP1
+          [this.stack[0], this.stack[1]] = [this.stack[1], this.stack[0]];
+          break;
+
+        case "91": // SWAP2
+          [this.stack[0], this.stack[2]] = [this.stack[2], this.stack[0]];
+          break;
+
+        case "92": // SWAP3
+          [this.stack[0], this.stack[3]] = [this.stack[3], this.stack[0]];
+          break;
+
+        case "93": // SWAP4
+          [this.stack[0], this.stack[4]] = [this.stack[4], this.stack[0]];
+          break;
+
+        case "94": // SWAP5
+          [this.stack[0], this.stack[5]] = [this.stack[5], this.stack[0]];
+          break;
+
+        case "95": // SWAP6
+          [this.stack[0], this.stack[6]] = [this.stack[6], this.stack[0]];
+          break;
+
+        case "96": // SWAP7
+          [this.stack[0], this.stack[7]] = [this.stack[7], this.stack[0]];
+          break;
+
+        case "97": // SWAP8
+          [this.stack[0], this.stack[8]] = [this.stack[8], this.stack[0]];
+          break;
+
+        case "98": // SWAP9
+          [this.stack[0], this.stack[9]] = [this.stack[9], this.stack[0]];
+          break;
+
+        case "99": // SWAP10
+          [this.stack[0], this.stack[10]] = [this.stack[10], this.stack[0]];
+          break;
+
+        case "9A": // SWAP11
+          [this.stack[0], this.stack[11]] = [this.stack[11], this.stack[0]];
+          break;
+
+        case "9B": // SWAP12
+          [this.stack[0], this.stack[12]] = [this.stack[12], this.stack[0]];
+          break;
+
+        case "9C": // SWAP13
+          [this.stack[0], this.stack[13]] = [this.stack[13], this.stack[0]];
+          break;
+
+        case "9D": // SWAP14
+          [this.stack[0], this.stack[14]] = [this.stack[14], this.stack[0]];
+          break;
+
+        case "9E": // SWAP15
+          [this.stack[0], this.stack[15]] = [this.stack[15], this.stack[0]];
+          break;
+
+        case "9F": // SWAP16
+          [this.stack[0], this.stack[16]] = [this.stack[16], this.stack[0]];
+          break;
 
         case "A0": // TODO: LOG0
           this.reverted = true;

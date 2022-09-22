@@ -49,10 +49,20 @@ bytecode = options.deployment
   ? getDeploymentBytecode(bytecode) + bytecode
   : bytecode;
 
-if (!options.force && !simulateDeployment(bytecode)) {
-  console.error(
-    "error: deployment bytecode not found (use --force to skip simulating deployment)"
-  );
+if (!options.force) {
+  const { reverted, returnData } = simulateDeployment(bytecode);
+
+  if (reverted) {
+    console.error("error: could not simulate bytecode deployment. (use --force to skip simulating deployment)");
+    process.exit(1);
+  }
+
+  if (!bytecode.includes(returnData)) {
+    console.error(
+      "error: deployment bytecode not found (use --deployment to add deployment bytecode)"
+    );
+    process.exit(1);
+  }
 }
 
 const wallet = new Wallet(
@@ -69,3 +79,4 @@ console.log(
 
 await contract.deployTransaction.wait();
 console.log(`Deployed contract on ${contract.address}`);
+process.exit(1);
