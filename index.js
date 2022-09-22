@@ -70,8 +70,7 @@ const wallet = new Wallet(
   new providers.JsonRpcProvider(options.rpcUrl)
 );
 const factory = new ContractFactory([], bytecode, wallet);
-const args = options.args ? options.args : [];
-const contract = await factory.deploy(...args);
+const contract = await factory.deploy();
 
 console.log(
   `Sending deployment transaction for contract on ${contract.address}...`
@@ -79,4 +78,4 @@ console.log(
 
 await contract.deployTransaction.wait();
 console.log(`Deployed contract on ${contract.address}`);
-process.exit(1);
+process.exit(0);
