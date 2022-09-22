@@ -1,19 +1,3 @@
-class c {
-  name = "asd";
+const bytecode = "604260005260206000F3";
 
-  cn1() {
-    this.name = "a";
-  }
-
-  cn3 = () => {
-    this.name = "c";
-  };
-}
-
-const cc = new c();
-
-cc.cn1();
-console.log(cc.name);
-
-cc.cn3();
-console.log(cc.name);
+console.log(bytecode);

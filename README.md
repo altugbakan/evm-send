@@ -16,4 +16,4 @@ npx evm-send [bytecode] -p <private-key> -r <rpc-url>
 
 - Support for all EVM chains using RPC URLs.
 - Deployment bytecode generation using `npx evm-send -d`
-- Bytecode correctness simulation (WIP)
+- Deployment bytecode correctness simulation

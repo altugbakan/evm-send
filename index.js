@@ -39,7 +39,7 @@ if (options.local === undefined) {
 
 // regex to match even number of hexadecimal numbers
 bytecode = bytecode.replace("0x", "");
-const re = /^((?:[a-f0-9]{2})*\b)*$/g;
+const re = /^((?:[A-Fa-f0-9]{2})*\b)*$/g;
 if (!re.test(bytecode)) {
   console.error("error: invalid bytecode");
   process.exit(1);
@@ -53,7 +53,9 @@ if (!options.force) {
   const { reverted, returnData } = simulateDeployment(bytecode);
 
   if (reverted) {
-    console.error("error: could not simulate bytecode deployment. (use --force to skip simulating deployment)");
+    console.error(
+      "error: could not simulate bytecode deployment. (use --force to skip simulating deployment)"
+    );
     process.exit(1);
   }
 
@@ -73,9 +75,9 @@ const factory = new ContractFactory([], bytecode, wallet);
 const contract = await factory.deploy();
 
 console.log(
-  `Sending deployment transaction for contract on ${contract.address}...`
+  `Sending deployment transaction for contract ${contract.address}...`
 );
 
 await contract.deployTransaction.wait();
-console.log(`Deployed contract on ${contract.address}`);
+console.log(`Deployed contract ${contract.address}`);
 process.exit(0);

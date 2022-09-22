@@ -5,6 +5,7 @@ export class EVM {
   reverted = false;
 
   run(bytecode) {
+    bytecode = bytecode.toUpperCase();
     this.stack = [];
     this.memory = "";
     this.return = "";
@@ -16,9 +17,11 @@ export class EVM {
         break;
       }
 
+      let shift, offset, destOffset, size, value, jumpDest, b;
+
       switch (opcodes[pc]) {
         case "00": // STOP
-          break;
+          return;
 
         case "01": // ADD
           if (this.stack.length < 2) {
@@ -73,7 +76,9 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          this.stack.push((this.stack.pop() + this.stack.pop()) % this.stack.pop());
+          this.stack.push(
+            (this.stack.pop() + this.stack.pop()) % this.stack.pop()
+          );
           break;
 
         case "09": // MULMOD
@@ -81,7 +86,9 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          this.stack.push((this.stack.pop() * this.stack.pop()) % this.stack.pop());
+          this.stack.push(
+            (this.stack.pop() * this.stack.pop()) % this.stack.pop()
+          );
           break;
 
         case "0A": // EXP
@@ -97,19 +104,19 @@ export class EVM {
           break;
 
         case "10": // LT
-          if (this.stack.length < 3) {
+          if (this.stack.length < 2) {
             this.reverted = true;
             break;
           }
-          this.stack.push(this.stack.pop() < this.stack.pop() ? BigInt(1) : BigInt(0));
+          this.stack.push(this.stack.pop() < this.stack.pop() ? 1 : 0);
           break;
 
         case "11": // GT
-          if (this.stack.length < 3) {
+          if (this.stack.length < 2) {
             this.reverted = true;
             break;
           }
-          this.stack.push(this.stack.pop() > this.stack.pop() ? BigInt(1) : BigInt(0));
+          this.stack.push(this.stack.pop() > this.stack.pop() ? 1 : 0);
           break;
 
         case "12": // TODO: SLT
@@ -125,7 +132,7 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          this.stack.push(this.stack.pop() === this.stack.pop() ? BigInt(1) : BigInt(0));
+          this.stack.push(this.stack.pop() === this.stack.pop() ? 1 : 0);
           break;
 
         case "15": // ISZERO
@@ -133,7 +140,7 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          this.stack.push(this.stack.pop() === 0 ? BigInt(1) : BigInt(0));
+          this.stack.push(this.stack.pop() === 0 ? 1 : 0);
           break;
 
         case "16": // AND
@@ -173,7 +180,7 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          this.stack.push(BigInt(0xFF) << (BigInt(31) - this.stack.pop()) & this.stack.pop());
+          this.stack.push((0xff << (31 - this.stack.pop())) & this.stack.pop());
           break;
 
         case "1B": // SHL
@@ -181,7 +188,7 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const shift = this.stack.pop();
+          shift = this.stack.pop();
           this.stack.push(this.stack.pop() << shift);
           break;
 
@@ -190,7 +197,7 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const shift = this.stack.pop();
+          shift = this.stack.pop();
           this.stack.push(this.stack.pop() >> shift);
           break;
 
@@ -235,7 +242,7 @@ export class EVM {
           break;
 
         case "38": // CODESIZE
-          this.stack.push(BigInt(bytecode.length / 2));
+          this.stack.push(bytecode.length / 2);
           break;
 
         case "39": // CODECOPY
@@ -243,10 +250,13 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const destOffset = this.stack.pop();
-          const offset = this.stack.pop();
-          const size = this.stack.pop();
-          this.insertToMemory(destOffset, bytecode.slice(offset, offset + size * 2));
+          destOffset = this.stack.pop();
+          offset = this.stack.pop();
+          size = this.stack.pop();
+          this.insertToMemory(
+            destOffset,
+            bytecode.slice(offset * 2, offset * 2 + size * 2)
+          );
           break;
 
         case "3A": // TODO: GASPRICE
@@ -262,16 +272,19 @@ export class EVM {
           break;
 
         case "3D": // RETURNDATASIZE
-          this.stack.push(BigInt(this.return.length / 2));
+          this.stack.push(this.return.length / 2);
           break;
-          
+
         case "3E": // RETURNDATACOPY
-          const destOffset = this.stack.pop();
-          const offset = this.stack.pop();
-          const size = this.stack.pop();
-          this.insertToMemory(destOffset, this.return.slice(offset, offset + size * 2));
+          destOffset = this.stack.pop();
+          offset = this.stack.pop();
+          size = this.stack.pop();
+          this.insertToMemory(
+            destOffset,
+            this.return.slice(offset, offset + size * 2)
+          );
           break;
-          
+
         case "3F": // TODO: EXTCODEHASH
           this.reverted = true;
           break;
@@ -325,8 +338,8 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const offset = this.stack.pop();
-          this.stack.push(BigInt("0x" + this.memory.slice(offset, offset + 64)));
+          offset = this.stack.pop();
+          this.stack.push("0x" + this.memory.slice(offset, offset + 64));
           break;
 
         case "52": // MSTORE
@@ -334,8 +347,8 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const offset = this.stack.pop();
-          const value = this.stack.pop();
+          offset = this.stack.pop();
+          value = this.stack.pop();
           this.insertToMemory(offset, String(value).padStart(32, "0"));
           break;
 
@@ -344,8 +357,8 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const offset = this.stack.pop();
-          const value = this.stack.pop();
+          offset = this.stack.pop();
+          value = this.stack.pop();
           this.insertToMemory(offset, String(value).padStart(8, "0"));
           break;
 
@@ -362,12 +375,12 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const jumpDest = this.stack.pop();
+          jumpDest = this.stack.pop();
           if (bytecode.length < jumpDest) {
             this.reverted = true;
             break;
           }
-          if (bytecode.slice(jumpDest * 2, 2) != "5B") {
+          if (bytecode.slice(jumpDest * 2, jumpDest * 2 + 2) != "5B") {
             this.reverted = true;
             break;
           }
@@ -379,8 +392,8 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const jumpDest = this.stack.pop();
-          const b = this.stack.pop();
+          jumpDest = this.stack.pop();
+          b = this.stack.pop();
           if (b !== 1) {
             break;
           }
@@ -388,11 +401,12 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          if (bytecode.slice(jumpDest * 2, 2) != "5B") {
+          if (bytecode.slice(jumpDest * 2, jumpDest * 2 + 2) != "5B") {
             this.reverted = true;
             break;
           }
           pc = jumpDest;
+          break;
 
         case "58": // PC
           this.stack.push(pc);
@@ -410,227 +424,291 @@ export class EVM {
           break;
 
         case "60": // PUSH1
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 2)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 4))
+          );
           pc += 1;
           break;
 
         case "61": // PUSH2
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 4)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 6))
+          );
           pc += 2;
           break;
 
         case "62": // PUSH3
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 6)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 8))
+          );
           pc += 3;
           break;
 
         case "63": // PUSH4
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 8)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 10))
+          );
           pc += 4;
           break;
 
         case "64": // PUSH5
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 10)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 12))
+          );
           pc += 5;
           break;
 
         case "65": // PUSH6
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 12)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 14))
+          );
           pc += 6;
           break;
 
         case "66": // PUSH7
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 14)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 16))
+          );
           pc += 7;
           break;
 
         case "67": // PUSH8
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 16)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 18))
+          );
           pc += 8;
           break;
 
         case "68": // PUSH9
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 18)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 20))
+          );
           pc += 9;
           break;
 
         case "69": // PUSH10
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 20)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 22))
+          );
           pc += 10;
           break;
 
         case "6A": // PUSH11
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 22)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 24))
+          );
           pc += 11;
           break;
 
         case "6B": // PUSH12
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 24)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 26))
+          );
           pc += 12;
           break;
 
         case "6C": // PUSH13
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 26)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 28))
+          );
           pc += 13;
           break;
 
         case "6D": // PUSH14
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 28)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 30))
+          );
           pc += 14;
           break;
 
         case "6E": // PUSH15
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 30)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 32))
+          );
           pc += 15;
           break;
 
         case "6F": // PUSH16
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 32)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 34))
+          );
           pc += 16;
           break;
 
         case "70": // PUSH17
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 34)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 36))
+          );
           pc += 17;
           break;
 
         case "71": // PUSH18
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 36)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 38))
+          );
           pc += 18;
           break;
 
         case "72": // PUSH19
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 38)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 40))
+          );
           pc += 19;
           break;
 
         case "73": // PUSH20
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 40)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 42))
+          );
           pc += 20;
           break;
 
         case "74": // PUSH21
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 42)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 44))
+          );
           pc += 21;
           break;
 
         case "75": // PUSH22
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 44)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 46))
+          );
           pc += 22;
           break;
 
         case "76": // PUSH23
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 46)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 48))
+          );
           pc += 23;
           break;
 
         case "77": // PUSH24
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 48)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 50))
+          );
           pc += 24;
           break;
 
         case "78": // PUSH25
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 50)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 52))
+          );
           pc += 25;
           break;
 
         case "79": // PUSH26
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 52)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 54))
+          );
           pc += 26;
           break;
 
         case "7A": // PUSH27
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 54)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 56))
+          );
           pc += 27;
           break;
 
         case "7B": // PUSH28
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 56)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 58))
+          );
           pc += 28;
           break;
 
         case "7C": // PUSH29
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 58)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 60))
+          );
           pc += 29;
           break;
 
         case "7D": // PUSH30
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 60)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 62))
+          );
           pc += 30;
           break;
 
         case "7E": // PUSH31
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 62)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 64))
+          );
           pc += 31;
           break;
 
         case "7F": // PUSH32
-          this.stack.push(BigInt("0x" + bytecode.slice(pc * 2 + 2, 64)));
+          this.stack.push(
+            Number("0x" + bytecode.slice(pc * 2 + 2, pc * 2 + 66))
+          );
           pc += 32;
           break;
 
         case "80": // DUP1
-          this.stack.push(stack[0]);
+          this.stack.push(this.stack[0]);
           break;
 
         case "81": // DUP2
-          this.stack.push(stack[1]);
+          this.stack.push(this.stack[1]);
           break;
 
         case "82": // DUP3
-          this.stack.push(stack[2]);
+          this.stack.push(this.stack[2]);
           break;
 
         case "83": // DUP4
-          this.stack.push(stack[3]);
+          this.stack.push(this.stack[3]);
           break;
 
         case "84": // DUP5
-          this.stack.push(stack[4]);
+          this.stack.push(this.stack[4]);
           break;
 
         case "85": // DUP6
-          this.stack.push(stack[5]);
+          this.stack.push(this.stack[5]);
           break;
 
         case "86": // DUP7
-          this.stack.push(stack[6]);
+          this.stack.push(this.stack[6]);
           break;
 
         case "87": // DUP8
-          this.stack.push(stack[7]);
+          this.stack.push(this.stack[7]);
           break;
 
         case "88": // DUP9
-          this.stack.push(stack[8]);
+          this.stack.push(this.stack[8]);
           break;
 
         case "89": // DUP10
-          this.stack.push(stack[9]);
+          this.stack.push(this.stack[9]);
           break;
 
         case "8A": // DUP11
-          this.stack.push(stack[10]);
+          this.stack.push(this.stack[10]);
           break;
 
         case "8B": // DUP12
-          this.stack.push(stack[11]);
+          this.stack.push(this.stack[11]);
           break;
 
         case "8C": // DUP13
-          this.stack.push(stack[12]);
+          this.stack.push(this.stack[12]);
           break;
 
         case "8D": // DUP14
-          this.stack.push(stack[13]);
+          this.stack.push(this.stack[13]);
           break;
 
         case "8E": // DUP15
-          this.stack.push(stack[14]);
+          this.stack.push(this.stack[14]);
           break;
 
         case "8F": // DUP16
-          this.stack.push(stack[15]);
+          this.stack.push(this.stack[15]);
           break;
 
         case "90": // SWAP1
@@ -734,10 +812,10 @@ export class EVM {
             this.reverted = true;
             break;
           }
-          const offset = this.stack.pop();
-          const size = this.stack.pop();
+          offset = this.stack.pop();
+          size = this.stack.pop();
           this.return = this.memory.slice(offset * 2, offset * 2 + size * 2);
-          break;
+          return this.return;
 
         case "F4": // TODO: DELEGATECALL
           this.reverted = true;
@@ -756,8 +834,8 @@ export class EVM {
           if (this.stack.length < 2) {
             break;
           }
-          const offset = this.stack.pop();
-          const size = this.stack.pop();
+          offset = this.stack.pop();
+          size = this.stack.pop();
           this.return = this.memory.slice(offset * 2, offset * 2 + size * 2);
           break;
 
@@ -782,6 +860,9 @@ export class EVM {
     if (this.memory.length / 2 < offset) {
       this.memory += "0".repeat(offset - this.memory.length / 2);
     }
-    this.memory = this.memory.slice(0, offset * 2) + value + this.memory.slice(offset + value.length);
+    this.memory =
+      this.memory.slice(0, offset * 2) +
+      value +
+      this.memory.slice(offset + value.length);
   }
 }
