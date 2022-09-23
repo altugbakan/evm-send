@@ -88,6 +88,14 @@ describe("Deployment Code Check Tests", function () {
     expect(bytecode).to.include(returnData);
   });
 
+  it("should work with mixed-case bytecode", function () {
+    const bytecode = "600a600C600039600A6000f3604260005260206000F3";
+
+    const { reverted, returnData } = simulateDeployment(bytecode);
+    expect(reverted).to.be.false;
+    expect(bytecode).to.include(returnData);
+  });
+
   it("should add deployment bytecode for small programs", function () {
     const bytecode = "604260005260206000F3";
 

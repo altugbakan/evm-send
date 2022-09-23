@@ -38,7 +38,7 @@ if (options.local === undefined) {
 }
 
 // regex to match even number of hexadecimal numbers
-bytecode = bytecode.replace("0x", "");
+bytecode = bytecode.replace("0x", "").toUpperCase();
 const re = /^((?:[A-Fa-f0-9]{2})*\b)*$/g;
 if (!re.test(bytecode)) {
   console.error("error: invalid bytecode");
