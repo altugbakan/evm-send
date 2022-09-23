@@ -2,6 +2,8 @@
 
 A tool for deploying EVM bytecode.
 
+Published as evm-send on [NPM](https://www.npmjs.com/package/evm-send)
+
 ## Requirements
 
 - [Node.js](https://nodejs.org/en/)
